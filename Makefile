@@ -19,16 +19,16 @@
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 # Uncomment appropriate one for the system this is compiling for
-OS=LINUX
-#OS=SOLARIS
+#OS=LINUX
+OS=SOLARIS
 #OS=CYGWIN
 
-CC=gcc
-CFLAGS=-Wall -Wshadow -Wpointer-arith -Wwrite-strings -D ${OS}
+CC=clang
+CFLAGS= -g -v -Wall -Wshadow -Wpointer-arith -Wwrite-strings #-D ${OS}
 
-ifeq (${OS}, SOLARIS)
-LDFLAGS=-lnsl -lsocket -lresolv
-endif
+#ifeq (${OS}, SOLARIS)
+#LDFLAGS=-lnsl -lsocket -lresolv
+#endif
 
 all: pwnat
 
@@ -56,9 +56,10 @@ udpserver.o: udpserver.c packet.h list.h socket.h client.h message.h destination
 # Clean compiled and temporary files
 #
 clean:
-ifeq (${OS}, CYGWIN)
+
+#feq (${OS}, CYGWIN)
 	rm -f pwnat.exe
-else
+#else
 	rm -f pwnat 
-endif
+#endif
 	rm -f *~ *.o

@@ -90,7 +90,7 @@ int send_icmp( int icmp_sock, struct sockaddr_in *rsrc,  struct sockaddr_in *des
 	ip_pkt = (struct ip_packet_t*)packet;
 	ip_pkt->vers_ihl = 0x45;//|(pkt_len>>2);//5;//(IPVERSION << 4) | (IPHDR_SIZE >> 2);
 	ip_pkt->tos = 0;
-	ip_pkt->pkt_len = pkt_len;
+	ip_pkt->pkt_len = htons(pkt_len);
 	ip_pkt->id = 1; //kernel sets proper value htons(ip_id_counter);
 	ip_pkt->flags_frag_offset = 0;
 	ip_pkt->ttl = IPDEFTTL; // default time to live (64)
@@ -115,7 +115,7 @@ int send_icmp( int icmp_sock, struct sockaddr_in *rsrc,  struct sockaddr_in *des
 		ip_pkt2->vers_ihl = 0x45;
 		ip_pkt2->tos = 0;
 		/* no idea why i need to shift the bits here, but not on ip_pkt->pkt_len... */
-		ip_pkt2->pkt_len = (IPHDR_SIZE + ICMPHDR_SIZE) << 8;
+		ip_pkt2->pkt_len = (IPHDR_SIZE + ICMPHDR_SIZE);// << 8;
 		ip_pkt2->id = 1; //kernel sets proper value htons(ip_id_counter);
 		ip_pkt2->flags_frag_offset = 0;
 		ip_pkt2->ttl = 1; // real TTL would be 1 on a time exceeded packet
@@ -145,13 +145,13 @@ int send_icmp( int icmp_sock, struct sockaddr_in *rsrc,  struct sockaddr_in *des
 		memcpy(packet+IPHDR_SIZE+ICMPHDR_SIZE, ip_pkt2, IPHDR_SIZE);
 		memcpy(packet+IPHDR_SIZE+ICMPHDR_SIZE+IPHDR_SIZE, pkt2, ICMPHDR_SIZE);
 	}
-
-	err = sendto(icmp_sock, packet, pkt_len, 0, (struct sockaddr*)dest_addr, sizeof(struct sockaddr));
+	err = sendto(icmp_sock, packet, pkt_len, 0, (struct sockaddr*)dest_addr, sizeof(dest_addr));
 	free(packet);
 	//err = sendto(icmp_sock, (const void*)ip_pkt, pkt_len, 0, (struct sockaddr*)dest_addr, sizeof(struct sockaddr));
 	if (err < 0) {
 		printf("Failed to send ICMP packet: %s\n", strerror(errno));
-		return -1;
+	exit(1);	
+return -1;
 	}
 	else if (err != pkt_len)
 		printf("WARNING WARNING, didn't send entire packet\n");
